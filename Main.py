@@ -1,22 +1,24 @@
 from customtkinter import*
 from PIL import Image
-
+from FolderPage import FolderPage
 
 class MainWindow():
     def __init__(self):
         
         self.App = CTk()
         self.App.title("Image Gallery")
-        self.App.geometry("850x450+200+150")
+        self.App.geometry("850x450+200+150") 
 
-        self.img0 = CTkImage(Image.open("Image-Gallery-App\Icons\menu.png"),size=(24,24))
-        self.img1 = CTkImage(Image.open("Image-Gallery-App\Icons\home.png"),size=(24,24))
-        self.img2 = CTkImage(Image.open("Image-Gallery-App\Icons\\folder.png"),size=(24,24))
-        self.img3 = CTkImage(Image.open("Image-Gallery-App\Icons\exit.png"),size=(24,24))
+        self.img0 = CTkImage(Image.open("Icons\menu.png"),size=(24,24))
+        self.img1 = CTkImage(Image.open("Icons\home.png"),size=(24,24))
+        self.img2 = CTkImage(Image.open("Icons\\folder.png"),size=(24,24))
+        self.img3 = CTkImage(Image.open("Icons\exit.png"),size=(24,24))
 
 
         self.Main_frame = CTkFrame(self.App,width=850,height=450,fg_color="#5A011B",corner_radius=0)
         self.Main_frame.place(x=0,y=0)
+
+        self.Folder = FolderPage(self.Main_frame)
 
         self.Menubar = CTkFrame(self.Main_frame,width=40,height=450,fg_color="#760526",corner_radius=0)
         self.Menubar.place(x=0,y=0)
@@ -45,7 +47,7 @@ class MainWindow():
         self.home.bind('<Enter>',lambda Event: self.highlight(Event,self.home_text,""))
         self.home.bind('<Leave>',lambda Event: self.unhighlight(Event,self.home_text,""))
 
-        self.folder = CTkButton(self.Menubar,width=40,height=35,image=self.img2,fg_color="#760526",corner_radius=0,hover_color="#B80438",text="")
+        self.folder = CTkButton(self.Menubar,width=40,height=35,image=self.img2,fg_color="#760526",corner_radius=0,hover_color="#B80438",text="",command=self.Folder.place)
         self.folder.place(x=0,y=70)
 
         self.folder_text = CTkLabel(self.Menubar,height=31,width=110,fg_color="#760526",corner_radius=5,text="   Folders",font=("Times",16),anchor=W)

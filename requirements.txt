@@ -1,2 +1,3 @@
 customtkinter
 pillow
+db-sqlite3
