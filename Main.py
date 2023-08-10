@@ -72,6 +72,7 @@ class MainWindow():
 
         self.App.mainloop()
 
+
     def resize_menu_bar(self):
         if self.is_menu_maximised == False:
             self.Menubar.configure(width=160)
