@@ -32,6 +32,7 @@ class FolderPage():
         self.load_folders()
 
     def place(self):
+        self.frame.tkraise()
         self.frame.place(x=50,y=5)
 
     def hide(self):
