@@ -1,5 +1,6 @@
 from customtkinter import*
 from PIL import Image
+from ImageTools import ImageTools
 from FolderPage import FolderPage
 from Database import Database
 import threading
@@ -22,6 +23,7 @@ class MainWindow():
         self.Main_frame.place(x=0,y=0)
 
         self.Folder = FolderPage(self.Main_frame)
+        self.Tools = ImageTools(self.App,self.db.Images)
 
         self.Menubar = CTkFrame(self.Main_frame,width=40,height=450,fg_color="#760526",corner_radius=0)
         self.Menubar.place(x=0,y=0)
@@ -104,7 +106,8 @@ class MainWindow():
         self.current_frame = row_frame
 
         for i in self.db.Images:
-            self.img = Image.open(i)
+            path = i
+            self.img = Image.open(path)
             width,height = self.img.size
 
             if height > 100:
@@ -129,12 +132,13 @@ class MainWindow():
                 self.img_frame = CTkLabel(self.current_frame,width=int(width),height=int(height),text="",image=self.image)
 
             self.img_frame.place(x=self.x,y=0)
-            self.rem_width  = self.rem_width - width
-            self.x = self.x + width
+            self.img_frame.bind('<Button-1>',lambda Event,path=path: self.Tools.place(Event,path))
+            self.rem_width  = self.rem_width - width - 4
+            self.x = self.x + width + 4
             self.image_count = self.image_count + 1
 
             self.count.configure(text=str(self.image_count))
-
+        
     def resize_menu_bar(self):
         if self.is_menu_maximised == False:
             self.Menubar.configure(width=160)
