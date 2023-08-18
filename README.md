@@ -15,7 +15,6 @@ Add - <a href="https://www.flaticon.com/free-icons/plus" title="plus icons">Plus
 Bin - <a href="https://www.flaticon.com/free-icons/trash" title="trash icons">Trash icons created by Freepik - Flaticon</a><br>
 Folder2 - <a href="https://www.flaticon.com/free-icons/folder" title="folder icons">Folder icons created by Freepik - Flaticon</a><br>
 Crop - <a href="https://www.flaticon.com/free-icons/crop" title="crop icons">Crop icons created by Ilham Fitrotul Hayat - Flaticon</a><br>
-flip_h - <a href="https://www.flaticon.com/free-icons/edit-tool" title="edit tool icons">Edit tool icons created by Creatype - Flaticon</a><br>
-flip_v - <a href="https://www.flaticon.com/free-icons/edit-tool" title="edit tool icons">Edit tool icons created by Creatype - Flaticon</a><br>
-Arrow = <a href="https://www.flaticon.com/free-icons/right-arrow" title="right arrow icons">Right arrow icons created by Saepul Nahwan - Flaticon</a><br>
+flip - <a href="https://www.flaticon.com/free-icons/edit-tool" title="edit tool icons">Edit tool icons created by Creatype - Flaticon</a><br>
+Arrow - <a href="https://www.flaticon.com/free-icons/right-arrow" title="right arrow icons">Right arrow icons created by Saepul Nahwan - Flaticon</a><br>
 Pencil - <a href="https://www.flaticon.com/free-icons/pencil" title="pencil icons">Pencil icons created by Aficons studio - Flaticon</a><br>
