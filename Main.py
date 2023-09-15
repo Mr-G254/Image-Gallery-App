@@ -1,6 +1,6 @@
 from customtkinter import*
 from PIL import Image
-from ImageTools import ImageTools
+from ImageView import ImageView
 from FolderPage import FolderPage
 from Database import Database
 import threading
@@ -23,7 +23,7 @@ class MainWindow():
         self.Main_frame.place(x=0,y=0)
 
         self.Folder = FolderPage(self.Main_frame)
-        self.Tools = ImageTools(self.App,self.db.Images)
+        self.Tools = ImageView(self.App,self.db.Images)
 
         self.Menubar = CTkFrame(self.Main_frame,width=40,height=450,fg_color="#760526",corner_radius=0)
         self.Menubar.place(x=0,y=0)
