@@ -12,6 +12,7 @@ class MainWindow():
         self.App = app
         self.App.title("Image Gallery")
         self.App.geometry("850x450+200+150") 
+        self.App.resizable(False,False)
 
         self.img0 = CTkImage(Image.open("Icons\menu.png"),size=(24,24))
         self.img1 = CTkImage(Image.open("Icons\home.png"),size=(24,24))
@@ -23,7 +24,7 @@ class MainWindow():
         self.Main_frame.place(x=0,y=0)
 
         self.Folder = FolderPage(self.Main_frame)
-        self.Tools = ImageView(self.App,self.db.Images)
+        self.Tools = ImageView(self.App,self.db.Images,self.thread)
 
         self.Menubar = CTkFrame(self.Main_frame,width=40,height=450,fg_color="#760526",corner_radius=0)
         self.Menubar.place(x=0,y=0)
@@ -78,24 +79,24 @@ class MainWindow():
         self.titlebar = CTkLabel(self.Main_frame,width=160,height=34,fg_color="#760526",corner_radius=7,text="")
         self.titlebar.place(x=365,y=10)
 
-        self.title = CTkLabel(self.titlebar,width=110,height=28,text="Images",font=("Times",17),fg_color="#5A011B",corner_radius=7)
-        self.title.place(x=3,y=3)
+        self.title = CTkLabel(self.titlebar,width=113,height=30,text="Images",font=("Times",17),fg_color="#5A011B",corner_radius=6)
+        self.title.place(x=2,y=2)
 
         self.count = CTkLabel(self.titlebar,width=45,height=28,fg_color="#760526",text="0",font=("Times",17))
-        self.count.place(x=115,y=3)
+        self.count.place(x=114,y=3)
 
-        self.image_frame = CTkScrollableFrame(self.Main_frame,width=775,height=390,fg_color="#5A011B")
-        self.image_frame.place(x=50,y=50)
+        self.image_frame = CTkScrollableFrame(self.Main_frame,width=780,height=390,fg_color="#5A011B")
+        self.image_frame.place(x=45,y=50)
 
-        self.rem_width = 770
+        self.thread()
+
+    def thread(self):
+        self.rem_width = 775
         self.row = 0
         self.x = 0
         self.current_frame = ''
         self.image_count = 0
 
-        self.thread()
-
-    def thread(self):
         self.image_proc = threading.Thread(target=self.load_image,daemon=True)
         self.image_proc.start()
 
@@ -123,7 +124,7 @@ class MainWindow():
             if self.rem_width < width:
                 self.row = self.row + 1
                 self.x = 0
-                self.rem_width = 770
+                self.rem_width = 775
 
                 row_frame = CTkFrame(self.image_frame,width=770,height=100,fg_color="#5A011B")
                 row_frame.grid(column=0,row=self.row,pady=2)
@@ -138,9 +139,10 @@ class MainWindow():
             self.image_count = self.image_count + 1
 
             self.count.configure(text=str(self.image_count))
-        
+
     def resize_menu_bar(self):
         if self.is_menu_maximised == False:
+            self.Menubar.tkraise()
             self.Menubar.configure(width=160)
             self.is_menu_maximised = True
         
