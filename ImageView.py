@@ -38,7 +38,7 @@ class ImageView():
         self.toolbar = CTkFrame(self.image_frame,width=206,height=39,corner_radius=7,fg_color="#760526")
         self.toolbar.place(x=325,y=5)
 
-        self.crop = CTkButton(self.toolbar,width=50,height=35,text="",image=self.img0,corner_radius=6,fg_color="#760526",hover_color="#760526",command=self.crop_selection)
+        self.crop = CTkButton(self.toolbar,width=50,height=35,text="",image=self.img0,corner_radius=6,fg_color="#760526",hover_color="#5A011B",command=self.crop_selection)
         self.crop.place(x=2,y=2)
 
         self.flip_h = CTkButton(self.toolbar,width=50,height=35,text="",image=self.img1,corner_radius=6,fg_color="#760526",hover_color="#5A011B")
@@ -47,7 +47,7 @@ class ImageView():
         self.flip_v = CTkButton(self.toolbar,width=50,height=35,text="",image=self.img2,corner_radius=6,fg_color="#760526",hover_color="#5A011B")
         self.flip_v.place(x=103,y=2)
 
-        self.draw = CTkButton(self.toolbar,width=50,height=35,text="",image=self.img3,corner_radius=6,fg_color="#760526",hover_color="#760526",command=self.draw_image)
+        self.draw = CTkButton(self.toolbar,width=50,height=35,text="",image=self.img3,corner_radius=6,fg_color="#760526",hover_color="#5A011B",command=self.draw_image)
         self.draw.place(x=154,y=2)
 
         self.canvas = Canvas(self.image_frame,width=760,height=395,background="#5A011B",highlightthickness=0)
