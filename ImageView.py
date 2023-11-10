@@ -1,6 +1,9 @@
 from customtkinter import*
 from tkinter import Canvas
 from PIL import Image,ImageTk
+import os
+import cv2
+import imutils
 
 class ImageView():
     def __init__(self,master,image_list,load_image_function):
@@ -15,11 +18,17 @@ class ImageView():
 
         self.Image_list = image_list
         self.current_image_path = ""
+
         self.is_cropped = False
         self.x_ratio = 0
         self.y_ratio = 0
         self.start_x = 0
         self.start_y = 0
+
+        self.flip = []
+
+        self.visible_image = ''
+        self.original_image = ''
 
         self.image_frame = CTkFrame(master,width=850,height=450,fg_color="#5A011B",corner_radius=0)
 
@@ -41,10 +50,10 @@ class ImageView():
         self.crop = CTkButton(self.toolbar,width=50,height=35,text="",image=self.img0,corner_radius=6,fg_color="#760526",hover_color="#5A011B",command=self.crop_selection)
         self.crop.place(x=2,y=2)
 
-        self.flip_h = CTkButton(self.toolbar,width=50,height=35,text="",image=self.img1,corner_radius=6,fg_color="#760526",hover_color="#5A011B")
+        self.flip_h = CTkButton(self.toolbar,width=50,height=35,text="",image=self.img1,corner_radius=6,fg_color="#760526",hover_color="#5A011B",command=self.flip_horizontal)
         self.flip_h.place(x=53,y=2)
 
-        self.flip_v = CTkButton(self.toolbar,width=50,height=35,text="",image=self.img2,corner_radius=6,fg_color="#760526",hover_color="#5A011B")
+        self.flip_v = CTkButton(self.toolbar,width=50,height=35,text="",image=self.img2,corner_radius=6,fg_color="#760526",hover_color="#5A011B",command=self.flip_vertical)
         self.flip_v.place(x=103,y=2)
 
         self.draw = CTkButton(self.toolbar,width=50,height=35,text="",image=self.img3,corner_radius=6,fg_color="#760526",hover_color="#5A011B",command=self.draw_image)
@@ -55,8 +64,10 @@ class ImageView():
 
     def display_image(self,path):
         self.current_image_path = path
-        self.img = Image.open(path)
-        self.width,self.height=self.img.size
+        self.original_image = cv2.imread(path)
+
+        self.img = cv2.imread(path)
+        self.height,self.width,channels = self.img.shape
 
         original_width = self.width
         original_height = self.height
@@ -66,11 +77,13 @@ class ImageView():
             self.width = ((100-perc)/100)*self.width
             self.height = 390
 
-            self.img = self.img.resize((int(self.width),self.height),Image.Resampling.LANCZOS)
+            self.img = imutils.resize(self.img, width=int(self.width), height=(self.height))
 
+        self.visible_image = self.img
         self.x_ratio = original_width/self.width
         self.y_ratio = original_height/self.height
-        self.image = ImageTk.PhotoImage(self.img)
+        self.image = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)
+        self.image = ImageTk.PhotoImage(Image.fromarray(self.image))
 
         self.disable_crop()
         self.reset_toolbar_buttons()
@@ -224,20 +237,50 @@ class ImageView():
     def save_edited_image(self):
         if self.is_cropped:
             coords_from_0 =[(self.b_x1 - self.start_x),(self.b_y1 - self.start_y),(self.b_x2 - self.start_x),(self.b_y2 - self.start_y)]
-            crop_coords = [(coords_from_0[0] * self.x_ratio),(coords_from_0[1] * self.y_ratio),(coords_from_0[2] * self.x_ratio),(coords_from_0[3] * self.y_ratio)] 
+            crop_coords = [(coords_from_0[0] * self.x_ratio),(coords_from_0[1] * self.y_ratio),(coords_from_0[2] * self.x_ratio),(coords_from_0[3] * self.y_ratio)]
 
-            image = Image.open(self.current_image_path)
-            crop = image.crop(crop_coords)
-            
-            name = self.current_image_path.split(".") 
-            filename = f"{name[0]}(1).{name[1]}"
-            crop.save(filename)
+            crop = self.original_image[int(crop_coords[1]):int(crop_coords[3]),int(crop_coords[0]):int(crop_coords[2])]
+            filename = self.get_filename()
 
-            self.Image_list.append(filename)
-            self.Image_list.sort()
-            
-            self.display_image(filename)
-            self.callback()
+            cv2.imwrite(filename,crop)
+            self.add_saved_image(filename)
+            self.disable_crop()
+    
+    def flip_horizontal(self):
+        self.visible_image = cv2.flip(self.visible_image, 1)
+        cv2.imshow("__",self.visible_image)
+        self.flip.append(1)
+
+        self.canvas.delete('all')
+        self.canvas.create_image(380,195,image=ImageTk.PhotoImage(Image.fromarray(self.visible_image)))
+
+    def flip_vertical(self):
+        self.visible_image = cv2.flip(self.visible_image, 0)
+        cv2.imshow("__",self.visible_image)
+        self.flip.append(0)
+       
+        self.canvas.delete('all')
+        self.canvas.create_image(380,195,image=ImageTk.PhotoImage(Image.fromarray(self.visible_image)))
+
+    def get_filename(self):
+        name = self.current_image_path.split(".") 
+
+        count = 1
+        f_name = name[0].split('(')[0]
+        filename = f"{f_name}({str(count)}).{name[1]}"
+
+        while os.path.exists(filename):
+            count = count + 1
+            filename = f"{f_name}({str(count)}).{name[1]}"
+        
+        return filename
+
+    def add_saved_image(self,filename):
+        self.Image_list.append(filename)
+        self.Image_list.sort()
+        
+        self.display_image(filename)
+        self.callback()
 
     def go_back(self):
         self.app.title('Image Gallery')

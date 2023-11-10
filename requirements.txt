@@ -1,3 +1,5 @@
 customtkinter
 pillow
 db-sqlite3
+imutils
+opencv-python

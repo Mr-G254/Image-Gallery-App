@@ -5,14 +5,15 @@ from tkinter import filedialog,messagebox
 from Database import Database
 
 class FolderPage():
-    def __init__(self,Frame):
+    def __init__(self,Frame,minimise_menu):
         self.database = Database()
+        self.resize_menu = minimise_menu
 
         self.img0 = CTkImage(Image.open("Icons/add.png"),size=(18,18))
         self.img1 = CTkImage(Image.open("Icons/folder2.png"),size=(60,60))
         self.img2 = CTkImage(Image.open("Icons/bin.png"),size=(18,18))
 
-        self.frame = CTkFrame(Frame,width=500,height=440,fg_color="#760526",corner_radius=8)
+        self.frame = CTkFrame(Frame,width=500,height=445,fg_color="#760526",corner_radius=8)
 
         self.titlebar = CTkLabel(self.frame,width=150,height=34,fg_color="#5A011B",corner_radius=7,text="")
         self.titlebar.place(x=175,y=10)
@@ -31,7 +32,13 @@ class FolderPage():
 
         self.load_folders()
 
-    def place(self):
+    def place_event(self,Event,menu_state):
+        self.place(menu_state)
+
+    def place(self,menu_state):
+        if menu_state:
+            self.resize_menu()
+
         self.frame.tkraise()
         self.frame.place(x=50,y=5)
 
