@@ -59,8 +59,8 @@ class ImageView():
         self.draw = CTkButton(self.toolbar,width=50,height=35,text="",image=self.img3,corner_radius=6,fg_color="#760526",hover_color="#5A011B",command=self.draw_image)
         self.draw.place(x=154,y=2)
 
-        self.canvas = Canvas(self.image_frame,width=760,height=395,background="#5A011B",highlightthickness=0)
-        self.canvas.place(x=45,y=53)
+        self.canvas = Canvas(self.image_frame,width=762,height=397,background="#5A011B",highlightthickness=0)
+        self.canvas.place(x=44,y=52)
 
     def display_image(self,path):
         self.current_image_path = path
@@ -77,6 +77,11 @@ class ImageView():
             self.width = ((100-perc)/100)*self.width
             self.height = 390
 
+            if self.width > 760:
+                perc = ((self.width-760)/self.width)*100
+                self.width = 760
+                self.height = ((100-perc)/100)*self.height
+
             self.img = imutils.resize(self.img, width=int(self.width), height=(self.height))
 
         self.visible_image = self.img
@@ -89,8 +94,9 @@ class ImageView():
         self.reset_toolbar_buttons()
         self.canvas.delete('all')
 
-        self.Image = self.canvas.create_image(380,195,image=self.image)
+        self.Image = self.canvas.create_image(381,196,image=self.image)
         self.app.title(path)
+        
 
     def next(self):
         self.canvas.delete('all')
@@ -113,7 +119,11 @@ class ImageView():
         if current_index > 0:
             self.canvas.unbind('<Motion>')
             prev_image = self.Image_list[current_index-1]
-            self.display_image(prev_image)
+        
+        elif current_index == 0:
+            prev_image = self.Image_list[len(self.Image_list)-1]
+
+        self.display_image(prev_image)
 
     def place(self,Event,path):
         self.display_image(path)
@@ -247,20 +257,30 @@ class ImageView():
             self.disable_crop()
     
     def flip_horizontal(self):
+        self.disable_crop()
+
         self.visible_image = cv2.flip(self.visible_image, 1)
-        cv2.imshow("__",self.visible_image)
+        self.visible_image = cv2.cvtColor(self.visible_image,cv2.COLOR_BGR2RGB)
+
+        # cv2.imshow("__",self.visible_image)
         self.flip.append(1)
 
         self.canvas.delete('all')
-        self.canvas.create_image(380,195,image=ImageTk.PhotoImage(Image.fromarray(self.visible_image)))
+        self.canvas.create_image(381,196,image=ImageTk.PhotoImage(Image.fromarray(self.visible_image)))
+        # print(self.visible_image)
 
     def flip_vertical(self):
+        self.disable_crop()
+
         self.visible_image = cv2.flip(self.visible_image, 0)
+        self.visible_image = cv2.cvtColor(self.visible_image,cv2.COLOR_BGR2RGB)
+
         cv2.imshow("__",self.visible_image)
         self.flip.append(0)
        
         self.canvas.delete('all')
-        self.canvas.create_image(380,195,image=ImageTk.PhotoImage(Image.fromarray(self.visible_image)))
+        self.canvas.create_image(381,196,image=ImageTk.PhotoImage(Image.fromarray(self.visible_image)))
+        # print(self.visible_image)
 
     def get_filename(self):
         name = self.current_image_path.split(".") 
