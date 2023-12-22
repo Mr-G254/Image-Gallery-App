@@ -60,9 +60,20 @@ class ImageView():
         self.draw.place(x=154,y=2)
 
         self.canvas = Canvas(self.image_frame,width=762,height=397,background="#5A011B",highlightthickness=0)
-        self.canvas.place(x=44,y=52)
+        self.canvas.place(x=44,y=47)
+
+        self.editing_frame = CTkFrame(self.image_frame,width=762,height=397,fg_color="#5A011B") 
+        self.placed = FALSE
+
+        self.editing_image = CTkLabel(self.editing_frame,text='',width=762,height=397,fg_color="#5A011B")
+        self.editing_image.place(x=0,y=0)
+
+    def place_editing_frame(self):
+        self.editing_frame.place(x=44,y=49)
+        self.placed = TRUE
 
     def display_image(self,path):
+        self.editing_frame.place_forget()
         self.current_image_path = path
         self.original_image = cv2.imread(path)
 
@@ -84,21 +95,24 @@ class ImageView():
 
             self.img = imutils.resize(self.img, width=int(self.width), height=(self.height))
 
-        self.visible_image = self.img
         self.x_ratio = original_width/self.width
         self.y_ratio = original_height/self.height
-        self.image = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)
-        self.image = ImageTk.PhotoImage(Image.fromarray(self.image))
+        self.image0 = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)
+        self.visible_image = self.image0
+        self.image = ImageTk.PhotoImage(Image.fromarray(self.image0))
 
         self.disable_crop()
         self.reset_toolbar_buttons()
         self.canvas.delete('all')
 
-        self.Image = self.canvas.create_image(381,196,image=self.image)
+        self.Image = self.canvas.create_image(381,199,image=self.image)
         self.app.title(path)
         
 
     def next(self):
+        self.disable_crop()
+        self.editing_frame.place_forget()
+        self.placed = False
         self.canvas.delete('all')
 
         current_index = self.Image_list.index(self.current_image_path)
@@ -112,6 +126,9 @@ class ImageView():
         self.display_image(next_image)
 
     def previous(self):
+        self.disable_crop()
+        self.editing_frame.place_forget()
+        self.placed = False
         self.canvas.delete('all')
 
         current_index = self.Image_list.index(self.current_image_path)
@@ -142,12 +159,21 @@ class ImageView():
         self.start_y = self.y1
 
     def crop_selection(self):
+        self.flip.clear()
+        self.visible_image = self.image0
         self.crop.configure(state=DISABLED,fg_color="#5A011B")
         self.draw.configure(state=NORMAL,fg_color="#760526")
+
+        try:
+            self.editing_frame.place_forget()
+            self.canvas.delete(self.border)
+        except:
+            pass
 
         self.get_coordinates()
         self.border = self.canvas.create_rectangle(self.x1,self.y1,self.x2,self.y2,width=3,outline='#FF4D00')
         self.get_border_coordinates()
+
         self.canvas.bind('<Motion>',lambda Event: self.get_selection(Event))
 
     def get_border_coordinates(self):
@@ -158,28 +184,28 @@ class ImageView():
         self.b_y2 = coords[3]
 
     def get_selection(self,Event):
-        if Event.x >= int(self.x1) and Event.x <= int(self.x2) and Event.y == int(self.b_y1):
+        if Event.x >= int(self.x1) and Event.x <= int(self.x2) and Event.y <= int(self.b_y1)+3 and Event.y >= int(self.b_y1):
             self.canvas.configure(cursor='sb_v_double_arrow')
             self.canvas.unbind('<Button-1>')
             self.canvas.bind('<Button-1>',lambda Event: self.cursor_motion(Event,'x','a'))
             self.canvas.unbind('<ButtonRelease-1>')
             self.canvas.bind('<ButtonRelease-1>',lambda Event: self.cursor_motion_stop(Event))
 
-        elif Event.x >= int(self.x1) and Event.x <= int(self.x2) and Event.y == int(self.b_y2):
+        elif Event.x >= int(self.x1) and Event.x <= int(self.x2) and Event.y <= int(self.b_y2) and Event.y >= int(self.b_y2)-3:
             self.canvas.configure(cursor='sb_v_double_arrow')
             self.canvas.unbind('<Button-1>')
             self.canvas.bind('<Button-1>',lambda Event: self.cursor_motion(Event,'x','b'))
             self.canvas.unbind('<ButtonRelease-1>')
             self.canvas.bind('<ButtonRelease-1>',lambda Event: self.cursor_motion_stop(Event))
 
-        elif Event.y >= int(self.y1) and Event.y <= int(self.y2) and Event.x == int(self.b_x1):
+        elif Event.y >= int(self.y1) and Event.y <= int(self.y2) and Event.x >= int(self.b_x1)-3 and Event.x <= int(self.b_x1):
             self.canvas.configure(cursor='sb_h_double_arrow')
             self.canvas.unbind('<Button-1>')
             self.canvas.bind('<Button-1>',lambda Event: self.cursor_motion(Event,'y','a'))
             self.canvas.unbind('<ButtonRelease-1>')
             self.canvas.bind('<ButtonRelease-1>',lambda Event: self.cursor_motion_stop(Event))
 
-        elif Event.y >= int(self.y1) and Event.y <= int(self.y2) and Event.x == int(self.b_x2):
+        elif Event.y >= int(self.y1) and Event.y <= int(self.y2) and Event.x >= int(self.b_x2) and Event.x <= int(self.b_x2)+3:
             self.canvas.configure(cursor='sb_h_double_arrow')
             self.canvas.unbind('<Button-1>')
             self.canvas.bind('<Button-1>',lambda Event: self.cursor_motion(Event,'y','b'))
@@ -224,10 +250,10 @@ class ImageView():
     
     def disable_crop(self):
         try:
+            self.crop.configure(state=NORMAL,fg_color="#760526")
             self.is_cropped = False
             self.canvas.unbind('<Motion>')
             self.canvas.unbind('<Button-1>')
-            self.canvas.delete(self.border)
         except:
             pass
 
@@ -243,45 +269,41 @@ class ImageView():
 
         self.draw.configure(state=DISABLED,fg_color="#5A011B")
         self.crop.configure(state=NORMAL,fg_color="#760526")
+    
+    def flip_horizontal(self):
+        self.disable_crop()
+        self.place_editing_frame()
+
+        self.visible_image = cv2.flip(self.visible_image, 1)
+        self.editing_image.configure(image = ImageTk.PhotoImage(Image.fromarray(self.visible_image)))
+        self.flip.append(1)
+
+    def flip_vertical(self):
+        self.disable_crop()
+        self.place_editing_frame()
+
+        self.visible_image = cv2.flip(self.visible_image, 0)
+        self.editing_image.configure(image = ImageTk.PhotoImage(Image.fromarray(self.visible_image)))
+        self.flip.append(0)
 
     def save_edited_image(self):
         if self.is_cropped:
             coords_from_0 =[(self.b_x1 - self.start_x),(self.b_y1 - self.start_y),(self.b_x2 - self.start_x),(self.b_y2 - self.start_y)]
             crop_coords = [(coords_from_0[0] * self.x_ratio),(coords_from_0[1] * self.y_ratio),(coords_from_0[2] * self.x_ratio),(coords_from_0[3] * self.y_ratio)]
 
-            crop = self.original_image[int(crop_coords[1]):int(crop_coords[3]),int(crop_coords[0]):int(crop_coords[2])]
-            filename = self.get_filename()
+            edited_image = self.original_image[int(crop_coords[1]):int(crop_coords[3]),int(crop_coords[0]):int(crop_coords[2])]
 
-            cv2.imwrite(filename,crop)
-            self.add_saved_image(filename)
-            self.disable_crop()
-    
-    def flip_horizontal(self):
+        elif len(self.flip) > 0:
+            edited_image = self.original_image
+
+            for i in self.flip:
+                edited_image = cv2.flip(edited_image,i)
+
+        filename = self.get_filename()
+        cv2.imwrite(filename,edited_image)
+        self.add_saved_image(filename)
         self.disable_crop()
-
-        self.visible_image = cv2.flip(self.visible_image, 1)
-        self.visible_image = cv2.cvtColor(self.visible_image,cv2.COLOR_BGR2RGB)
-
-        # cv2.imshow("__",self.visible_image)
-        self.flip.append(1)
-
-        self.canvas.delete('all')
-        self.canvas.create_image(381,196,image=ImageTk.PhotoImage(Image.fromarray(self.visible_image)))
-        # print(self.visible_image)
-
-    def flip_vertical(self):
-        self.disable_crop()
-
-        self.visible_image = cv2.flip(self.visible_image, 0)
-        self.visible_image = cv2.cvtColor(self.visible_image,cv2.COLOR_BGR2RGB)
-
-        cv2.imshow("__",self.visible_image)
-        self.flip.append(0)
        
-        self.canvas.delete('all')
-        self.canvas.create_image(381,196,image=ImageTk.PhotoImage(Image.fromarray(self.visible_image)))
-        # print(self.visible_image)
-
     def get_filename(self):
         name = self.current_image_path.split(".") 
 

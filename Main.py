@@ -111,7 +111,7 @@ class MainWindow():
 
         for i in self.db.Images:
             path = i
-            image = cv2.imread(i)
+            image = cv2.imread(path)
             height, width, channels = image.shape
 
             if height > 100:
