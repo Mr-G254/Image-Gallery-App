@@ -1,5 +1,5 @@
 from customtkinter import*
-from tkinter import Canvas
+from tkinter import Canvas,messagebox,colorchooser
 from PIL import Image,ImageTk
 import os
 import cv2
@@ -15,6 +15,8 @@ class ImageView():
         self.img1 = CTkImage(Image.open("Icons/flip_h.png"),size=(25,25))
         self.img2 = CTkImage(Image.open("Icons/flip_v.png"),size=(25,25))
         self.img3 = CTkImage(Image.open("Icons/pencil.png"),size=(25,25))
+        self.img4 = CTkImage(Image.open("Icons/bin.png"),size=(20,20))
+        self.img5 = CTkImage(Image.open("Icons/color-picker.png"),size=(25,25))
 
         self.Image_list = image_list
         self.current_image_path = ""
@@ -29,6 +31,8 @@ class ImageView():
 
         self.visible_image = ''
         self.original_image = ''
+
+        self.chosen_color = "black"
 
         self.image_frame = CTkFrame(master,width=850,height=450,fg_color="#5A011B",corner_radius=0)
 
@@ -45,7 +49,7 @@ class ImageView():
         self.right.place(x=810,y=200)
 
         self.toolbar = CTkFrame(self.image_frame,width=206,height=39,corner_radius=7,fg_color="#760526")
-        self.toolbar.place(x=325,y=5)
+        self.toolbar.place(x=303,y=5)
 
         self.crop = CTkButton(self.toolbar,width=50,height=35,text="",image=self.img0,corner_radius=6,fg_color="#760526",hover_color="#5A011B",command=self.crop_selection)
         self.crop.place(x=2,y=2)
@@ -59,8 +63,16 @@ class ImageView():
         self.draw = CTkButton(self.toolbar,width=50,height=35,text="",image=self.img3,corner_radius=6,fg_color="#760526",hover_color="#5A011B",command=self.draw_image)
         self.draw.place(x=154,y=2)
 
+        self.delete = CTkButton(self.image_frame,width=40,height=39,text="",image=self.img4,corner_radius=5,fg_color="#760526",hover_color="#5A011B")
+        self.delete.place(x=514,y=5)
+
         self.canvas = Canvas(self.image_frame,width=762,height=397,background="#5A011B",highlightthickness=0)
         self.canvas.place(x=44,y=47)
+
+        self.color_frame = CTkFrame(self.image_frame,width=40,height=100,fg_color="black")
+
+        self.color_button = CTkButton(self.color_frame,width=30,height=30,fg_color="black",text='',image=self.img5,hover_color='black',command=self.choose_color)
+        self.color_button.place(x=0,y=10)
 
         self.editing_frame = CTkFrame(self.image_frame,width=762,height=397,fg_color="#5A011B") 
         self.placed = FALSE
@@ -99,7 +111,7 @@ class ImageView():
         self.y_ratio = original_height/self.height
         self.image0 = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)
         self.visible_image = self.image0
-        self.image = ImageTk.PhotoImage(Image.fromarray(self.image0))
+        self.image = ImageTk.PhotoImage(Image.fromarray(self.visible_image))
 
         self.disable_crop()
         self.reset_toolbar_buttons()
@@ -107,6 +119,8 @@ class ImageView():
 
         self.Image = self.canvas.create_image(381,199,image=self.image)
         self.app.title(path)
+
+        self.delete.configure(command = lambda: self.delete_image(self.current_image_path))
         
 
     def next(self):
@@ -159,6 +173,7 @@ class ImageView():
         self.start_y = self.y1
 
     def crop_selection(self):
+        self.color_frame.place_forget()
         self.flip.clear()
         self.visible_image = self.image0
         self.crop.configure(state=DISABLED,fg_color="#5A011B")
@@ -269,8 +284,16 @@ class ImageView():
 
         self.draw.configure(state=DISABLED,fg_color="#5A011B")
         self.crop.configure(state=NORMAL,fg_color="#760526")
+        self.color_frame.place(x=805,y=47)
+        self.editing_frame.place_forget()
+
+        try:
+            self.canvas.delete(self.border)
+        except:
+            pass
     
     def flip_horizontal(self):
+        self.color_frame.place_forget()
         self.disable_crop()
         self.place_editing_frame()
 
@@ -279,6 +302,7 @@ class ImageView():
         self.flip.append(1)
 
     def flip_vertical(self):
+        self.color_frame.place_forget()
         self.disable_crop()
         self.place_editing_frame()
 
@@ -324,9 +348,29 @@ class ImageView():
         self.display_image(filename)
         self.callback()
 
+    def delete_image(self,filename):
+        if messagebox.askyesno("Deleting image",f"Are you sure you want to delete '{self.current_image_path}'"):
+
+            self.next()
+            os.remove(filename)
+            self.Image_list.remove(filename)
+            self.callback()
+
+
     def go_back(self):
+        self.current_image_path = ''
         self.app.title('Image Gallery')
         self.image_frame.place_forget()
         self.crop.configure(state=NORMAL,fg_color="#760526")
         self.draw.configure(state=NORMAL,fg_color="#760526")
         self.canvas.unbind('<Motion>')
+
+    def choose_color(self):
+        try:
+            color = colorchooser.askcolor(title="Choose a color",initialcolor="black")
+            self.chosen_color = color[1]
+            self.color_frame.configure(fg_color =self.chosen_color)
+            self.color_button.configure(fg_color = self.chosen_color,hover_color=self.chosen_color)
+
+        except: 
+            pass

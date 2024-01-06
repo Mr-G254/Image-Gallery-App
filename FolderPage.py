@@ -8,12 +8,13 @@ class FolderPage():
     def __init__(self,Frame,minimise_menu):
         self.database = Database()
         self.resize_menu = minimise_menu
+        self.is_placed = False
 
         self.img0 = CTkImage(Image.open("Icons/add.png"),size=(18,18))
         self.img1 = CTkImage(Image.open("Icons/folder2.png"),size=(60,60))
         self.img2 = CTkImage(Image.open("Icons/bin.png"),size=(18,18))
 
-        self.frame = CTkFrame(Frame,width=500,height=445,fg_color="#760526",corner_radius=8)
+        self.frame = CTkFrame(Frame,width=500,height=442,fg_color="#760526",corner_radius=8)
 
         self.titlebar = CTkLabel(self.frame,width=150,height=34,fg_color="#5A011B",corner_radius=7,text="")
         self.titlebar.place(x=175,y=10)
@@ -41,9 +42,17 @@ class FolderPage():
 
         self.frame.tkraise()
         self.frame.place(x=50,y=5)
+        self.is_placed = True
 
     def hide(self):
         self.frame.place_forget()
+        self.is_placed = False
+
+    def extend_window(self):
+        self.frame.place(x=173,y=5)
+
+    def undo_extend_window(self):
+        self.frame.place(x=50,y=5)
 
     def highlight_folder(self,Event,frame):
         frame.configure(fg_color="#760526")
