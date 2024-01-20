@@ -1,5 +1,5 @@
 from customtkinter import*
-from tkinter import Canvas,messagebox,colorchooser
+from tkinter import Canvas,messagebox,colorchooser,Spinbox
 from PIL import Image,ImageTk
 import os
 import cv2
@@ -16,7 +16,9 @@ class ImageView():
         self.img2 = CTkImage(Image.open("Icons/flip_v.png"),size=(25,25))
         self.img3 = CTkImage(Image.open("Icons/pencil.png"),size=(25,25))
         self.img4 = CTkImage(Image.open("Icons/bin.png"),size=(20,20))
-        self.img5 = CTkImage(Image.open("Icons/color-picker.png"),size=(25,25))
+        self.img5 = CTkImage(Image.open("Icons/color-picker.png"),size=(24,24))
+        self.img6 = CTkImage(Image.open("Icons/up.png"),size=(6,6))
+        self.img7 = CTkImage(Image.open("Icons/down.png"),size=(6,6))
 
         self.Image_list = image_list
         self.current_image_path = ""
@@ -33,6 +35,7 @@ class ImageView():
         self.original_image = ''
 
         self.chosen_color = "black"
+        self.pixel_size = 10
 
         self.image_frame = CTkFrame(master,width=850,height=450,fg_color="#5A011B",corner_radius=0)
 
@@ -69,10 +72,24 @@ class ImageView():
         self.canvas = Canvas(self.image_frame,width=762,height=397,background="#5A011B",highlightthickness=0)
         self.canvas.place(x=44,y=47)
 
-        self.color_frame = CTkFrame(self.image_frame,width=40,height=100,fg_color="black")
+        self.draw_eframe = CTkFrame(self.image_frame,width=150,height=39,corner_radius=7,fg_color="#760526")
+
+        self.color_frame = CTkFrame(self.draw_eframe,width=90,height=35,corner_radius=6,fg_color="black")
+        self.color_frame.place(x=2,y=2)
 
         self.color_button = CTkButton(self.color_frame,width=30,height=30,fg_color="black",text='',image=self.img5,hover_color='black',command=self.choose_color)
-        self.color_button.place(x=0,y=10)
+        self.color_button.place(x=3,y=2)
+
+        self.entry = CTkEntry(self.draw_eframe,width=30,height=34,fg_color="#5A011B",font=('Times',17),corner_radius=4,border_width=0)
+        self.entry.insert(0,str(self.pixel_size))
+        self.entry.bind('<KeyRelease>',self.check_value)
+        self.entry.place(x=95,y=2)
+
+        self.up = CTkButton(self.draw_eframe,width=21,height=17,fg_color="#5A011B",text='',corner_radius=4,image=self.img6,command=lambda: self.change_value('add'))
+        self.up.place(x=128,y=2)
+
+        self.down = CTkButton(self.draw_eframe,width=21,height=17,fg_color="#5A011B",text='',corner_radius=4,image=self.img7,command=lambda: self.change_value('minus'))
+        self.down.place(x=128,y=20)
 
         self.editing_frame = CTkFrame(self.image_frame,width=762,height=397,fg_color="#5A011B") 
         self.placed = FALSE
@@ -118,7 +135,7 @@ class ImageView():
         self.canvas.delete('all')
 
         self.Image = self.canvas.create_image(381,199,image=self.image)
-        self.app.title(path)
+        self.app.title(f"Image Gallery - {path}")
 
         self.delete.configure(command = lambda: self.delete_image(self.current_image_path))
         
@@ -160,7 +177,6 @@ class ImageView():
         self.display_image(path)
         self.image_frame.tkraise()
         self.image_frame.place(x=0,y=0)
-        self.app.title(path)
 
     def get_coordinates(self):
         coordinates = self.canvas.coords(self.Image)
@@ -173,7 +189,7 @@ class ImageView():
         self.start_y = self.y1
 
     def crop_selection(self):
-        self.color_frame.place_forget()
+        self.draw_eframe.place_forget()
         self.flip.clear()
         self.visible_image = self.image0
         self.crop.configure(state=DISABLED,fg_color="#5A011B")
@@ -284,7 +300,7 @@ class ImageView():
 
         self.draw.configure(state=DISABLED,fg_color="#5A011B")
         self.crop.configure(state=NORMAL,fg_color="#760526")
-        self.color_frame.place(x=805,y=47)
+        self.draw_eframe.place(x=564,y=5)
         self.editing_frame.place_forget()
 
         try:
@@ -374,3 +390,39 @@ class ImageView():
 
         except: 
             pass
+
+    def check_value(self,Event):
+        value = self.entry.get()
+
+        try:
+            size = int(value)
+            if len(value) > 2:
+                value = value[len(value) - 2:]
+                self.entry.delete(0,END)
+                self.entry.insert(0,value)
+
+            self.pixel_size = int(value)
+            if self.pixel_size == 0:
+                self.pixel_size = 1
+
+            self.entry.delete(0,END)
+            self.entry.insert(0,self.pixel_size)
+
+        except:
+            self.entry.delete(0,END)
+            self.pixel_size = 10
+            self.entry.insert(0,self.pixel_size)
+
+    def change_value(self,value):
+        if value == 'add':
+            if self.pixel_size < 99:
+                self.pixel_size = self.pixel_size + 1
+        else:
+            if self.pixel_size > 1:
+                self.pixel_size = self.pixel_size - 1
+
+        self.entry.delete(0,END)
+        self.entry.insert(0,str(self.pixel_size))
+        
+
+        
