@@ -80,10 +80,10 @@ class ImageView():
         self.color_button = CTkButton(self.color_frame,width=30,height=30,fg_color="black",text='',image=self.img5,hover_color='black',command=self.choose_color)
         self.color_button.place(x=3,y=2)
 
-        self.entry = CTkEntry(self.draw_eframe,width=30,height=34,fg_color="#5A011B",font=('Times',17),corner_radius=4,border_width=0)
+        self.entry = CTkEntry(self.draw_eframe,width=32,height=34,fg_color="#5A011B",font=('Times',17),corner_radius=4,border_width=0)
         self.entry.insert(0,str(self.pixel_size))
         self.entry.bind('<KeyRelease>',self.check_value)
-        self.entry.place(x=95,y=2)
+        self.entry.place(x=94,y=2)
 
         self.up = CTkButton(self.draw_eframe,width=21,height=17,fg_color="#5A011B",text='',corner_radius=4,image=self.img6,command=lambda: self.change_value('add'))
         self.up.place(x=128,y=2)
@@ -131,6 +131,7 @@ class ImageView():
         self.image = ImageTk.PhotoImage(Image.fromarray(self.visible_image))
 
         self.disable_crop()
+        self.disable_draw()
         self.reset_toolbar_buttons()
         self.canvas.delete('all')
 
@@ -138,10 +139,12 @@ class ImageView():
         self.app.title(f"Image Gallery - {path}")
 
         self.delete.configure(command = lambda: self.delete_image(self.current_image_path))
+        self.get_coordinates()
         
 
     def next(self):
         self.disable_crop()
+        self.disable_draw()
         self.editing_frame.place_forget()
         self.placed = False
         self.canvas.delete('all')
@@ -158,6 +161,7 @@ class ImageView():
 
     def previous(self):
         self.disable_crop()
+        self.disable_draw()
         self.editing_frame.place_forget()
         self.placed = False
         self.canvas.delete('all')
@@ -189,7 +193,8 @@ class ImageView():
         self.start_y = self.y1
 
     def crop_selection(self):
-        self.draw_eframe.place_forget()
+        self.disable_draw()
+        
         self.flip.clear()
         self.visible_image = self.image0
         self.crop.configure(state=DISABLED,fg_color="#5A011B")
@@ -201,7 +206,7 @@ class ImageView():
         except:
             pass
 
-        self.get_coordinates()
+        # self.get_coordinates()
         self.border = self.canvas.create_rectangle(self.x1,self.y1,self.x2,self.y2,width=3,outline='#FF4D00')
         self.get_border_coordinates()
 
@@ -277,7 +282,7 @@ class ImageView():
             
             self.is_cropped = True
 
-        self.get_coordinates()
+        # self.get_coordinates()
     
     def disable_crop(self):
         try:
@@ -307,6 +312,8 @@ class ImageView():
             self.canvas.delete(self.border)
         except:
             pass
+
+        self.canvas.bind('<Motion>',self.draw_config)
     
     def flip_horizontal(self):
         self.color_frame.place_forget()
@@ -423,6 +430,19 @@ class ImageView():
 
         self.entry.delete(0,END)
         self.entry.insert(0,str(self.pixel_size))
-        
+    
+    def draw_config(self,Event):
+        if Event.y >= self.y1 and Event.y <= self.y2 and Event.x >= self.x1 and Event.x < self.x2:
+            self.canvas.configure(cursor="@Cursor/Pen.cur")
+        else:
+            self.canvas.configure(cursor="")
+    
+    def disable_draw(self):
+        try:
+            self.canvas.unbind('<Motion>')
+            self.canvas.unbind('<Button-1>')
+            self.draw_eframe.place_forget()
+        except:
+            pass
 
         

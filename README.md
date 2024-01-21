@@ -18,5 +18,6 @@ Crop - <a href="https://www.flaticon.com/free-icons/crop" title="crop icons">Cro
 flip - <a href="https://www.flaticon.com/free-icons/edit-tool" title="edit tool icons">Edit tool icons created by Creatype - Flaticon</a><br>
 Arrow - <a href="https://www.flaticon.com/free-icons/right-arrow" title="right arrow icons">Right arrow icons created by Saepul Nahwan - Flaticon</a><br>
 Pencil - <a href="https://www.flaticon.com/free-icons/pencil" title="pencil icons">Pencil icons created by Aficons studio - Flaticon</a><br>
-Color picker - <a href="https://www.flaticon.com/free-icons/color-picker" title="color picker icons">Color picker icons created by kerismaker - Flaticon</a>
+Color picker - <a href="https://www.flaticon.com/free-icons/color-picker" title="color picker icons">Color picker icons created by kerismaker - Flaticon</a><br>
 Up down arrow - <a href="https://www.flaticon.com/free-icons/play" title="play icons">Play icons created by Roundicons - Flaticon</a>
+Cursor pen - <a href="http://www.rw-designer.com/cursor-detail/187998" title="custom cursor icon">custom cursor from Open Cursor Library</a><br>
