@@ -25,10 +25,11 @@ class MainWindow():
         self.Main_frame = CTkFrame(self.App,width=850,height=450,fg_color="#5A011B",corner_radius=0)
         self.Main_frame.place(x=0,y=0)
 
-        self.Folder = FolderPage(self.Main_frame,self.resize_menu_bar)
+        self.Folder = FolderPage(self.Main_frame,self.resize_menu_bar,self.close_folder_window)
         self.Tools = ImageView(self.App,self.db.Images,self.thread)
 
         self.row_frames = []
+        self.menu_buttons = []
 
         self.Menubar = CTkFrame(self.Main_frame,width=40,height=442,fg_color="#760526",corner_radius=5)
         self.Menubar.place(x=5,y=5)
@@ -36,18 +37,15 @@ class MainWindow():
 
         self.menu = CTkButton(self.Menubar,width=40,height=35,image=self.img0,fg_color="#760526",corner_radius=0,hover_color="#B80438",text="",command=self.resize_menu_bar)
         self.menu.place(x=0,y=3)
+        self.menu_buttons.append(self.menu)
 
-        self.menu_text = CTkLabel(self.Menubar,height=35,width=115,fg_color="#760526",corner_radius=4,text="   Menu",font=("Times",16),anchor=W)
+        self.menu_text = CTkLabel(self.Menubar,height=35,width=115,fg_color="#B80438",corner_radius=4,text="   Menu",font=("Times",16),anchor=W)
         self.menu_text.place(x=45,y=3)
-        self.menu_text.bind('<Enter>',lambda Event: self.highlight(Event,self.menu_text,self.menu))
-        self.menu_text.bind('<Leave>',lambda Event: self.unhighlight(Event,self.menu_text,self.menu))
         self.menu_text.bind('<Button-1>',lambda Event: self.resize_event(Event))
 
-        self.menu.bind('<Enter>',lambda Event: self.highlight(Event,self.menu_text,""))
-        self.menu.bind('<Leave>',lambda Event: self.unhighlight(Event,self.menu_text,""))
-
-        self.home = CTkButton(self.Menubar,width=40,height=35,image=self.img1,fg_color="#760526",corner_radius=0,hover_color="#B80438",text="")
+        self.home = CTkButton(self.Menubar,width=40,height=35,image=self.img1,fg_color="#760526",corner_radius=0,hover_color="#B80438",text="",command= self.home)
         self.home.place(x=0,y=38)
+        self.menu_buttons.append(self.home)
 
         self.home_text = CTkLabel(self.Menubar,height=35,width=115,fg_color="#760526",corner_radius=4,text="   Home",font=("Times",16),anchor=W)
         self.home_text.place(x=45,y=38)
@@ -57,8 +55,9 @@ class MainWindow():
         self.home.bind('<Enter>',lambda Event: self.highlight(Event,self.home_text,""))
         self.home.bind('<Leave>',lambda Event: self.unhighlight(Event,self.home_text,""))
 
-        self.folder = CTkButton(self.Menubar,width=40,height=35,image=self.img2,fg_color="#760526",corner_radius=0,hover_color="#B80438",text="",command=lambda: self.Folder.place(self.is_menu_maximised))
+        self.folder = CTkButton(self.Menubar,width=40,height=35,image=self.img2,fg_color="#760526",corner_radius=0,hover_color="#B80438",text="",command=lambda: [self.Folder.place(self.is_menu_maximised), self.show_current_page(self.folder)])
         self.folder.place(x=0,y=73)
+        self.menu_buttons.append(self.folder)
 
         self.folder_text = CTkLabel(self.Menubar,height=35,width=115,fg_color="#760526",corner_radius=4,text="   Folders",font=("Times",16),anchor=W)
         self.folder_text.place(x=45,y=73)
@@ -70,7 +69,7 @@ class MainWindow():
         self.folder.bind('<Leave>',lambda Event: self.unhighlight(Event,self.folder_text,""))
 
         self.exit = CTkButton(self.Menubar,width=40,height=35,image=self.img3,fg_color="#760526",corner_radius=0,hover_color="#B80438",text="",command=self.close)
-        self.exit.place(x=0,y=402)
+        self.exit.place(x=0,y=405)
 
         self.exit_text = CTkLabel(self.Menubar,height=35,width=115,fg_color="#760526",corner_radius=4,text="   Exit",font=("Times",16),anchor=W)
         self.exit_text.place(x=45,y=402)
@@ -93,7 +92,15 @@ class MainWindow():
         self.image_frame = CTkScrollableFrame(self.Main_frame,width=780,height=390,fg_color="#5A011B")
         self.image_frame.place(x=45,y=49)
 
+        self.show_current_page(self.home)
         self.thread()
+    
+    def home(self):
+        self.show_current_page(self.home)
+        self.Folder.hide()
+
+        if self.is_menu_maximised:
+            self.resize_menu_bar()
 
     def thread(self):
         self.rem_width = 775
@@ -106,7 +113,6 @@ class MainWindow():
         self.image_proc.start()
 
     def load_image(self):
-        # self.image_frame.destroy()
         self.image_frame = CTkScrollableFrame(self.Main_frame,width=780,height=390,fg_color="#5A011B")
         self.image_frame.place(x=45,y=49)
 
@@ -157,6 +163,7 @@ class MainWindow():
             self.Menubar.tkraise()
             self.Menubar.configure(width=163)
             self.is_menu_maximised = True
+            self.show_current_page(self.menu)
 
             if self.Folder.is_placed:
                 self.Folder.extend_window()
@@ -167,6 +174,9 @@ class MainWindow():
 
             if self.Folder.is_placed:
                 self.Folder.undo_extend_window()
+                self.show_current_page(self.folder)
+            else:
+                self.show_current_page(self.home)
 
     def resize_event(self,Event):
         self.resize_menu_bar()
@@ -182,6 +192,19 @@ class MainWindow():
 
         if button != "":
             button.configure(fg_color="#760526")
+
+    def show_current_page(self,button):
+        for i in self.menu_buttons:
+            if i == button:
+                i.configure(fg_color="#B80438")
+            else:
+                i.configure(state=NORMAL,fg_color="#760526")
+
+    def close_folder_window(self):
+        if self.is_menu_maximised:
+            self.show_current_page(self.menu)
+        else:
+            self.show_current_page(self.home)
 
     def close(self):
         self.App.destroy()

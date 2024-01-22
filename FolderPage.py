@@ -5,10 +5,11 @@ from tkinter import filedialog,messagebox
 from Database import Database
 
 class FolderPage():
-    def __init__(self,Frame,minimise_menu):
+    def __init__(self,Frame,minimise_menu,notify_close_callback):
         self.database = Database()
         self.resize_menu = minimise_menu
         self.is_placed = False
+        self.callback = notify_close_callback
 
         self.img0 = CTkImage(Image.open("Icons/add.png"),size=(18,18))
         self.img1 = CTkImage(Image.open("Icons/folder2.png"),size=(60,60))
@@ -47,6 +48,7 @@ class FolderPage():
     def hide(self):
         self.frame.place_forget()
         self.is_placed = False
+        self.callback()
 
     def extend_window(self):
         self.frame.place(x=173,y=5)
