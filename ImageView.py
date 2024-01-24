@@ -434,8 +434,34 @@ class ImageView():
     def draw_config(self,Event):
         if Event.y >= self.y1 and Event.y <= self.y2 and Event.x >= self.x1 and Event.x < self.x2:
             self.canvas.configure(cursor="@Cursor/Pen.cur")
+            self.canvas.bind('<B1-Motion>',lambda Event: self.draw_on_image(Event))
         else:
             self.canvas.configure(cursor="")
+            self.canvas.unbind('<B1-Motion>')
+
+    def draw_on_image(self,Event):
+        x1 = Event.x - (self.pixel_size/2)
+        if x1 < self.x1:
+            x1 = self.x1
+
+        y1 = Event.y - (self.pixel_size/2)
+        if y1 < self.y1:
+            y1 = self.y1
+
+        x2 = Event.x + (self.pixel_size/2)
+        if x2 > self.x2:
+            x2 = self.x2
+
+        y2 = Event.y + (self.pixel_size/2)
+        if y2 > self.y2:
+            y2 = self.y2
+
+        if Event.y >= self.y1 and Event.y <= self.y2 and Event.x >= self.x1 and Event.x < self.x2:
+            drawing = self.canvas.create_oval(x1,y1,x2,y2,fill=self.chosen_color,outline='')
+        else:
+            self.canvas.unbind('<B1-Motion>')
+
+            
     
     def disable_draw(self):
         try:
